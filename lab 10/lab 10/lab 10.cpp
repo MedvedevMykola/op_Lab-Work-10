@@ -5,9 +5,11 @@ struct List
 {
 	char data;
 	List *next;
+	List *previous;
 }*head;
 
 List *p;
+List *tail;
 void create()
 {
 	char ch;
@@ -24,10 +26,12 @@ void create()
 				if (ch == '\r')
 					ch = '\n';
 				else {
-					head = new List;
-					head->data = ch;
-					head->next = NULL;
-					p = head;
+					List *p = new List;
+					p->data = ch;
+					p->next = NULL;
+					p->previous = NULL;
+					head = p;
+					tail = p;
 				}
 				printf("%c", ch);
 			}
@@ -39,14 +43,17 @@ void create()
 
 			if (ch != 26)
 			{
-				if (ch == '\r')
+				if (ch == '\r' || ch == ' ' || ch == '\t')
 					ch = '\n';
 
 				else {
-					p->next = new List;
-					p = p->next;
+
+					List *p = new List;
 					p->data = ch;
 					p->next = NULL;
+					p->previous = tail;
+					tail->next = p;
+					tail = p;
 				}
 				printf("%c", ch);
 			}
@@ -57,6 +64,7 @@ void create()
 }
 void output()
 {
+	printf("\n");
 	p = head;
 	while (p)
 	{
@@ -65,10 +73,43 @@ void output()
 	}
 
 }
+char fmax()
+{
+	char max = 0;
+	p = head;
+	while (p)
+	{
+		if (p->data > max)max = p->data;
+		p = p->next;
+	}
+	return max;
+}
+void change()
+{
+	char max = fmax();
+	p = head;
+	if (p->data==max && p->previous == NULL)
+		return;
+	while (p)
+	{		
+		if (p->data == max)
+		{
+			p->previous->next = p->next;
+			p->next->previous = p->previous;
+			p->next = head;
+			p->previous = NULL;
+			head->previous = p;
+			head = p;
+		}
+		p = p->next;
+	}
+}
 
 int main()
 {
 	create();
+	output();
+	change();
 	output();
 	_getch();
 }
